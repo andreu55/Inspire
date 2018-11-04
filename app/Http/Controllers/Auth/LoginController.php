@@ -43,13 +43,16 @@ class LoginController extends Controller
     {
         $this->validateLogin($request);
 
-        if ($this->attemptLogin($request)) {
+        // Devolveremos el json si la peticion viene con la cabecera 'Accept: application/json'
+        if ($this->attemptLogin($request) && $request->wantsJson()) {
+
             $user = $this->guard()->user();
             $user->generateToken();
 
-            $res['user'] = $user->toArray();
+            return response()->json([
+              'user' => $user
+            ]);
 
-            return response()->json($res);
         }
 
         return $this->sendFailedLoginResponse($request);
